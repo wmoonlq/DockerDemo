@@ -1,0 +1,11 @@
+# 构建上下文瘦身：不把 target/.git/IDE 配置传给 Docker 守护进程
+.git
+.gitignore
+.idea
+.vscode
+*.iml
+target
+*.log
+README.md
+docker-compose.yml
+.git-credentials

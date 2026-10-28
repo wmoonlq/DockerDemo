@@ -1,7 +1,29 @@
+name: dockerdemo
+
 services:
   demo-backend:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dockerdemo/demo-backend:0.0.1
     container_name: demo-spring
     ports:
       - "8080:8080"
-    restart: always
+    environment:
+      TZ: Asia/Shanghai
+    # 容器内 PID 1 由 tini 托管，Java 能正常收到 SIGTERM，配合 graceful shutdown
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 30s
+    healthcheck:
+      # alpine 自带 busybox wget，指向 actuator 健康端点
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 40s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
